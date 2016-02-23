@@ -20,7 +20,7 @@ def get_user_real_name(username):
     logger.info("Getting real name for user '" + username + "'...")
     command = 'boards/' + BOARD_ID + "/members"
     params = {'fields': 'fullName,username'}
-    response = get_request_response(command, params)
+    response = _get_request_response(command, params)
     object = json.loads(response.text)
     for item in object:
         if item['username'] == username:
@@ -32,19 +32,19 @@ def get_closed_cards():
     logger.info("Getting all closed cards...")
     command = 'lists/' + CLOSED_CARDS_LIST_ID + '/cards'
     params = {'fields': 'id'}
-    response = get_request_response(command, params)
-    return get_as_object(response)
+    response = _get_request_response(command, params)
+    return _get_as_object(response)
 
 
 def get_card_comments(card_id):
     logger.info("Getting all comments for card with id '" + card_id + "'...")
     command = 'cards/' + card_id + '/actions'
     params = {'fields': 'date,data', 'filter': 'commentCard'}
-    response = get_request_response(command, params)
-    return get_as_object(response)
+    response = _get_request_response(command, params)
+    return _get_as_object(response)
 
 
-def get_request_response(command, extra_params=None):
+def _get_request_response(command, extra_params=None):
     auth_params = {'key': APP_KEY, 'token': APP_TOKEN}
     final_params = auth_params
     if extra_params:
@@ -53,7 +53,7 @@ def get_request_response(command, extra_params=None):
     return requests.get(url, params=final_params)
 
 
-def get_as_object(response):
+def _get_as_object(response):
     object = json.loads(response.text)
     result = []
     for item in object:

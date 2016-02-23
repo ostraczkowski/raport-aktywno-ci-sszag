@@ -10,7 +10,22 @@ now = datetime.datetime.now()
 date_now = "%d-%02d-%02dT%02d%02d%02d" % (now.year, now.month, now.day, now.hour, now.minute, now.second)
 
 
-def build_years_summary(reports_by_year, names_by_users):
+def make_text_report(reports_by_user, reports_by_year, names_by_users):
+    logger.info("Generating text report...")
+
+    text_report = '\n'
+    text_report += _build_years_summary(reports_by_year, names_by_users)
+    text_report += _build_users_summary(reports_by_user, reports_by_year, names_by_users)
+
+    filename = date_now + '-text-report.txt'
+    file = open(filename, 'w')
+    file.write(text_report.encode('utf-8'))
+    file.close()
+
+    logger.info('Text report saved in ' + filename)
+
+
+def _build_years_summary(reports_by_year, names_by_users):
     summary = u'ZESTAWIENIA ROCZNE\n'
     summary += '#################################################################\n'
     summary += '\n'
@@ -23,7 +38,7 @@ def build_years_summary(reports_by_year, names_by_users):
     return summary
 
 
-def build_users_summary(reports_by_user, reports_by_year, names_by_users):
+def _build_users_summary(reports_by_user, reports_by_year, names_by_users):
     summary = u'ZESTAWIENIA SZCZEGÓŁOWE CZŁONKÓW\n'
     summary += '#################################################################\n'
     summary += '\n'
@@ -38,21 +53,6 @@ def build_users_summary(reports_by_user, reports_by_year, names_by_users):
                 summary += "- %d.%02d: %.2fh\n" % (year, month, reports_by_user[username][year][month])
             summary += '\n'
     return summary
-
-
-def make_text_report(reports_by_user, reports_by_year, names_by_users):
-    logger.info("Generating text report...")
-
-    text_report = '\n'
-    text_report += build_years_summary(reports_by_year, names_by_users)
-    text_report += build_users_summary(reports_by_user, reports_by_year, names_by_users)
-
-    filename = date_now + '-text-report.txt'
-    file = open(filename, 'w')
-    file.write(text_report.encode('utf-8'))
-    file.close()
-
-    logger.info('Text report saved in ' + filename)
 
 
 def make_chart_report(reports_by_user, reports_by_year, names_by_users):
