@@ -7,8 +7,7 @@ import logutils
 import webutils
 import reportutils
 
-
-logger = logutils.create_logger('main')
+logger = logutils.create_logger(__name__)
 
 
 def assure_report_exists(reports, username, year, month):
@@ -57,4 +56,36 @@ def read_reports_from_comments():
     return reports
 
 
-reportutils.print_final_report(read_reports_from_comments())
+def assure_report_by_year_exist(reports_by_year, year):
+    if not reports_by_year.__contains__(year):
+        reports_by_year[year] = {}
+
+
+def build_reports_by_year(reports_by_user):
+    reports_by_year = {}
+    for username in reports_by_user:
+        years = reports_by_user[username]
+        for year in years:
+            hours_in_year = 0.0
+            months = reports_by_user[username][year]
+            for month in months:
+                hours_in_year += reports_by_user[username][year][month]
+            assure_report_by_year_exist(reports_by_year, year)
+            reports_by_year[year][username] = hours_in_year
+    return reports_by_year
+
+
+def build_names_by_users(reports_by_user):
+    names_by_users = {}
+    for username in reports_by_user:
+        user_real_name = webutils.get_user_real_name(username)
+        names_by_users[username] = user_real_name
+    return names_by_users
+
+
+if __name__ == "__main__":
+    reports_by_user = read_reports_from_comments()
+    reports_by_year = build_reports_by_year(reports_by_user)
+    names_by_users = build_names_by_users(reports_by_user)
+    reportutils.make_text_report(reports_by_user, reports_by_year, names_by_users)
+    reportutils.make_chart_report(reports_by_user, reports_by_year, names_by_users)

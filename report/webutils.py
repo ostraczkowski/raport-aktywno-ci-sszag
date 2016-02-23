@@ -2,6 +2,7 @@
 
 import requests
 import json
+
 import logutils
 
 BASE_URL = 'https://api.trello.com/1'
@@ -12,7 +13,7 @@ CLOSED_CARDS_LIST_ID = '524adf089e1491f3360008cb'
 APP_KEY = 'f34058aafb06bd8bf617f1e698e2f954'
 APP_TOKEN = 'a903a79b2aa6952569cadb6f411e3b275af97e22ba9503c8c16e97cf43588967'
 
-logger = logutils.create_logger('webutils')
+logger = logutils.create_logger(__name__)
 
 
 def get_user_real_name(username):
