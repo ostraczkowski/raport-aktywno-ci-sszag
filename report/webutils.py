@@ -16,7 +16,7 @@ logger = logutils.create_logger('webutils')
 
 
 def get_user_real_name(username):
-    logger.info("Getting user real name...")
+    logger.info("Getting real name for user '" + username + "'...")
     command = 'boards/' + BOARD_ID + "/members"
     params = {'fields': 'fullName,username'}
     response = get_request_response(command, params)
@@ -28,7 +28,7 @@ def get_user_real_name(username):
 
 
 def get_closed_cards():
-    logger.info("Getting closed cards...")
+    logger.info("Getting all closed cards...")
     command = 'lists/' + CLOSED_CARDS_LIST_ID + '/cards'
     params = {'fields': 'id'}
     response = get_request_response(command, params)
@@ -36,7 +36,7 @@ def get_closed_cards():
 
 
 def get_card_comments(card_id):
-    logger.info("Getting card comments...")
+    logger.info("Getting all comments for card with id '" + card_id + "'...")
     command = 'cards/' + card_id + '/actions'
     params = {'fields': 'date,data', 'filter': 'commentCard'}
     response = get_request_response(command, params)
