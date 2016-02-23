@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 
 import re
 import datetime
@@ -84,9 +85,28 @@ def _build_names_by_users(reports_by_user):
     return names_by_users
 
 
+def _sort_reports_by_user(reports):
+    sorted_by_user = OrderedDict(sorted(reports.items(), key=lambda t: t[0]))
+    for user in sorted_by_user:
+        sorted_by_year = OrderedDict(sorted(sorted_by_user[user].items(), key=lambda t: t[0],reverse=True))
+        for year in sorted_by_year:
+            sorted_by_month = OrderedDict(sorted(sorted_by_year[year].items(), key=lambda t: t[0]))
+            sorted_by_year[year] = sorted_by_month
+        sorted_by_user[user] = sorted_by_year
+    return sorted_by_user
+
+
+def _sort_reports_by_year(reports):
+    sorted_by_year = OrderedDict(sorted(reports.items(), key=lambda t: t[0], reverse=True))
+    for year in sorted_by_year:
+        sorted_by_value = OrderedDict(sorted(sorted_by_year[year].items(), key=lambda t: t[1], reverse=True))
+        sorted_by_year[year] = sorted_by_value
+    return sorted_by_year
+
+
 if __name__ == "__main__":
-    reports_by_user = _read_reports_from_comments()
-    reports_by_year = _build_reports_by_year(reports_by_user)
+    reports_by_user = _sort_reports_by_user(_read_reports_from_comments())
+    reports_by_year = _sort_reports_by_year(_build_reports_by_year(reports_by_user))
     names_by_users = _build_names_by_users(reports_by_user)
     reportutils.make_text_report(reports_by_user, reports_by_year, names_by_users)
     reportutils.make_chart_report(reports_by_user, reports_by_year, names_by_users)
