@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
 
+from collections import OrderedDict
 import re
 import datetime
 
@@ -88,7 +88,7 @@ def _build_names_by_users(reports_by_user):
 def _sort_reports_by_user(reports):
     sorted_by_user = OrderedDict(sorted(reports.items(), key=lambda t: t[0]))
     for user in sorted_by_user:
-        sorted_by_year = OrderedDict(sorted(sorted_by_user[user].items(), key=lambda t: t[0],reverse=True))
+        sorted_by_year = OrderedDict(sorted(sorted_by_user[user].items(), key=lambda t: t[0], reverse=True))
         for year in sorted_by_year:
             sorted_by_month = OrderedDict(sorted(sorted_by_year[year].items(), key=lambda t: t[0]))
             sorted_by_year[year] = sorted_by_month
