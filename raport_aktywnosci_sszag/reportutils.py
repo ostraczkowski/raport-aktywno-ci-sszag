@@ -38,8 +38,9 @@ def _build_years_summary(reports_by_year, names_by_users):
     for year in reports_by_year:
         summary += "%s:\n" % (year)
         summary += '---------------------------------------------------------------\n'
-        for username in reports_by_year[year]:
-            summary += "%s: %.2fh\n" % (names_by_users[username], reports_by_year[year][username])
+        for user in reports_by_year[year]:
+            if names_by_users.__contains__(user):
+                summary += "%s: %.2fh\n" % (names_by_users[user], reports_by_year[year][user])
         summary += '\n'
     return summary
 
@@ -48,16 +49,17 @@ def _build_users_summary(reports_by_user, reports_by_year, names_by_users):
     summary = u'ZESTAWIENIA SZCZEGÓŁOWE CZŁONKÓW\n'
     summary += '#################################################################\n'
     summary += '\n'
-    for username in reports_by_user:
-        summary += "%s:\n" % (names_by_users[username])
-        summary += '---------------------------------------------------------------\n'
-        years = reports_by_user[username]
-        for year in years:
-            summary += "- %d: %.2fh\n" % (year, reports_by_year[year][username])
-            months = reports_by_user[username][year]
-            for month in months:
-                summary += "- %d.%02d: %.2fh\n" % (year, month, reports_by_user[username][year][month])
-            summary += '\n'
+    for user in reports_by_user:
+        if names_by_users.__contains__(user):
+            summary += "%s:\n" % (names_by_users[user])
+            summary += '---------------------------------------------------------------\n'
+            years = reports_by_user[user]
+            for year in years:
+                summary += "- %d: %.2fh\n" % (year, reports_by_year[year][user])
+                months = reports_by_user[user][year]
+                for month in months:
+                    summary += "- %d.%02d: %.2fh\n" % (year, month, reports_by_user[user][year][month])
+                summary += '\n'
     return summary
 
 
@@ -75,9 +77,10 @@ def make_chart_report(reports_by_user, reports_by_year, names_by_users):
 
         # fill work hours structure with actual values
         for user in reports_by_year[year]:
-            work_hours_by_user[year][0].append((names_by_users[user], reports_by_year[year][user]))
-            for month in reports_by_user[user][year]:
-                work_hours_by_user[year][month].append((names_by_users[user], reports_by_user[user][year][month]))
+            if names_by_users.__contains__(user):
+                work_hours_by_user[year][0].append((names_by_users[user], reports_by_year[year][user]))
+                for month in reports_by_user[user][year]:
+                    work_hours_by_user[year][month].append((names_by_users[user], reports_by_user[user][year][month]))
 
         # generate annual report
         filename = REPORT_DIR + '/raport-wykres-%d.png' % (year)

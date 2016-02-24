@@ -14,14 +14,14 @@ logger = logutils.create_logger(__name__)
 def _read_reports_from_comments():
     """Private function to read user reports from Trello comments. Report example: '@oskar: 15h [2015-02]."""
     reports = {}
-    cards = webutils.get_closed_cards()
+    cards = webutils.get_cards()
     for card in cards:
         comments = webutils.get_card_comments(card['id'])
-        _update_reports(reports, comments)
+        _update_all_reports(reports, comments)
     return reports
 
 
-def _update_reports(reports, comments):
+def _update_all_reports(reports, comments):
     """Private function to update user reports which were already processed with reports from passed comments."""
     for comment in comments:
         matches = re.findall('@\w+\s*:\s*\d+[.,]?\d*h\s*\[\d{4}-\d{2}\]', comment['data']['text'])
@@ -43,10 +43,10 @@ def _update_reports(reports, comments):
 
 
 
-def _update_user_report(reports, username, hours, date):
-    _assure_report_by_user_exists(reports, username, date.year, date.month)
-    reports[username][date.year][date.month] += float(hours)
-    logger.debug('Added ' + hours + 'h for user ' + username + ' in ' + str(date.year) + '.' + str(date.month))
+def _update_user_report(reports, user, hours, date):
+    _assure_report_by_user_exists(reports, user, date.year, date.month)
+    reports[user][date.year][date.month] += float(hours)
+    logger.debug('Added ' + hours + 'h for user ' + user + ' in ' + str(date.year) + '.' + str(date.month))
 
 
 def _get_username(text):
@@ -72,26 +72,26 @@ def _get_date_from_comment(text):
     return datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%S.%fZ')
 
 
-def _assure_report_by_user_exists(reports, username, year, month):
-    if not reports.__contains__(username):
-        reports[username] = {}
-    if not reports[username].__contains__(year):
-        reports[username][year] = {}
-    if not reports[username][year].__contains__(month):
-        reports[username][year][month] = 0
+def _assure_report_by_user_exists(reports, user, year, month):
+    if not reports.__contains__(user):
+        reports[user] = {}
+    if not reports[user].__contains__(year):
+        reports[user][year] = {}
+    if not reports[user][year].__contains__(month):
+        reports[user][year][month] = 0
 
 
 def _build_reports_by_year(reports_by_user):
     reports_by_year = {}
-    for username in reports_by_user:
-        years = reports_by_user[username]
+    for user in reports_by_user:
+        years = reports_by_user[user]
         for year in years:
             hours_in_year = 0.0
-            months = reports_by_user[username][year]
+            months = reports_by_user[user][year]
             for month in months:
-                hours_in_year += reports_by_user[username][year][month]
+                hours_in_year += reports_by_user[user][year][month]
             _assure_report_by_year_exist(reports_by_year, year)
-            reports_by_year[year][username] = hours_in_year
+            reports_by_year[year][user] = hours_in_year
     return reports_by_year
 
 
@@ -102,9 +102,10 @@ def _assure_report_by_year_exist(reports_by_year, year):
 
 def _build_names_by_users(reports_by_user):
     names_by_users = {}
-    for username in reports_by_user:
-        user_real_name = webutils.get_user_real_name(username)
-        names_by_users[username] = user_real_name
+    for user in reports_by_user:
+        user_real_name = webutils.get_user_real_name(user)
+        if user_real_name:
+            names_by_users[user] = user_real_name
     return names_by_users
 
 

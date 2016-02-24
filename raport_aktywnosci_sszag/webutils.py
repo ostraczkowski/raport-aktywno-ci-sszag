@@ -7,7 +7,6 @@ import logutils
 
 BASE_URL = 'https://api.trello.com/1'
 BOARD_ID = '524adf089e1491f3360008c8'
-CLOSED_CARDS_LIST_ID = '524adf089e1491f3360008cb'
 
 # TODO odczytac z zewnetrznego pliku
 APP_KEY = 'f34058aafb06bd8bf617f1e698e2f954'
@@ -25,12 +24,12 @@ def get_user_real_name(username):
     for item in object:
         if item['username'] == username:
             return item['fullName']
-    return username
+    return None
 
 
-def get_closed_cards():
+def get_cards():
     logger.info("Getting all closed cards...")
-    command = 'lists/' + CLOSED_CARDS_LIST_ID + '/cards'
+    command = 'boards/' + BOARD_ID + '/cards'
     params = {'fields': 'id'}
     response = _get_request_response(command, params)
     return _get_as_object(response)
