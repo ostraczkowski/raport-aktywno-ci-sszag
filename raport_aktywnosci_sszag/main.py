@@ -12,6 +12,7 @@ logger = logutils.create_logger(__name__)
 
 
 def _read_reports_from_comments():
+    """Private function to read user reports from Trello comments. Report example: '@oskar: 15h [2015-02]."""
     reports = {}
     cards = webutils.get_closed_cards()
     for card in cards:
@@ -21,31 +22,53 @@ def _read_reports_from_comments():
 
 
 def _update_reports(reports, comments):
+    """Private function to update user reports which were already processed with reports from passed comments."""
     for comment in comments:
-        matches = re.findall('@\w+\s*:\s*[0-9]+[.,]?[0-9]?h', comment['data']['text'])
+        matches = re.findall('@\w+\s*:\s*\d+[.,]?\d*h\s*\[\d{4}-\d{2}\]', comment['data']['text'])
         if matches:
             for match in matches:
                 username = _get_username(match.__str__())
                 hours = _get_hours(match.__str__())
-                date = _get_date(comment['date'])
-                _assure_report_by_user_exists(reports, username, date.year, date.month)
-                reports[username][date.year][date.month] += float(hours)
-                logger.debug(
-                    'Added ' + hours + 'h for user ' + username + ' in ' + str(date.year) + '.' + str(date.month))
+                date = _get_date_from_report(match.__str__())
+                _update_user_report(reports, username, hours, date)
+            continue
+
+        matches = re.findall('@\w+\s*:\s*\d+[.,]?\d*h', comment['data']['text'])
+        if matches:
+            for match in matches:
+                username = _get_username(match.__str__())
+                hours = _get_hours(match.__str__())
+                date = _get_date_from_comment(comment['date'])
+                _update_user_report(reports, username, hours, date)
+
+
+
+def _update_user_report(reports, username, hours, date):
+    _assure_report_by_user_exists(reports, username, date.year, date.month)
+    reports[username][date.year][date.month] += float(hours)
+    logger.debug('Added ' + hours + 'h for user ' + username + ' in ' + str(date.year) + '.' + str(date.month))
 
 
 def _get_username(text):
+    """Private function which returns username extracted from user report."""
     m = re.search('\w+', text)
     return m.group(0).lower()
 
 
 def _get_hours(text):
-    m = re.search('[0-9]+[.,]?[0-9]?h', text)
+    """Private function which returns hours extracted from user report."""
+    m = re.search('\d+[.,]?\d*h', text)
     hours = m.group(0)[:-1]
     return hours.replace(',', '.')
 
 
-def _get_date(text):
+def _get_date_from_report(text):
+    """Private function which returns date extracted from user report (optional)."""
+    m = re.search('\d{4}-\d{2}', text)
+    return datetime.datetime.strptime(m.group(0), '%Y-%m')
+
+def _get_date_from_comment(text):
+    """Private function which returns date extracted from the comment."""
     return datetime.datetime.strptime(text, '%Y-%m-%dT%H:%M:%S.%fZ')
 
 
