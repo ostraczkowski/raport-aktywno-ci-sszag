@@ -30,7 +30,7 @@ def get_user_real_name(username):
 def get_cards():
     logger.info("Getting all closed cards...")
     command = 'boards/' + BOARD_ID + '/cards'
-    params = {'fields': 'id'}
+    params = {'fields': 'id', 'filter': 'all'}
     response = _get_request_response(command, params)
     return _get_as_object(response)
 
