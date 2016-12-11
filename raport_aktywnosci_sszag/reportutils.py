@@ -102,7 +102,7 @@ def _plot_chart(filename, title, labels, values):
     x_max = len(labels) + 1
     y_max = max(values)
 
-    rc('font', family='Arial')
+    #rc('font', family='Arial')
 
     plt.figure(1)
     plt.title(title)
